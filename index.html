@@ -6,241 +6,1619 @@
 <title>Web Linux Replica</title>
 <style>
   :root {
-    --wallpaper: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
-    --taskbar-bg: rgba(20, 20, 20, 0.92);
-    --window-bg: #2a2a2a;
-    --titlebar-bg: #3a3a3a;
-    --titlebar-active: #4a4a4a;
-    --accent: #4f46e5;
+    --wallpaper: linear-gradient(135deg, #0f172a 0%, #1e293b 50%, #334155 100%);
+    --wallpaper-alt: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
+    --wallpaper-alt2: radial-gradient(circle at 50% 50%, #1e1e2e 0%, #181825 100%);
+    --taskbar-bg: rgba(15, 23, 42, 0.88);
+    --window-bg: #1e1e2e;
+    --titlebar-bg: #313244;
+    --content-bg: #181825;
+    --accent: #89b4fa;
+    --accent-hover: #b4befe;
+    --text: #cdd6f4;
+    --text-dim: #a6adc8;
     --radius: 12px;
+    --laptop-body: #2a2a2a;
+    --laptop-keyboard: #1a1a1a;
   }
 
   * { margin: 0; padding: 0; box-sizing: border-box; }
   body { 
-    font-family: 'Segoe UI', system-ui, sans-serif; 
-    background: #000; color: #e0e0e0; 
+    font-family: 'Segoe UI', system-ui, -apple-system, sans-serif; 
+    background: #0a0a0a; color: var(--text); 
     overflow: hidden; user-select: none; 
-    height: 100dvh; touch-action: manipulation;
+    height: 100vh; display: flex; align-items: center; justify-content: center;
+  }
+
+  /* Laptop Frame */
+  #laptop-container {
+    width: min(95vw, 1200px);
+    height: min(95vh, 750px);
+    background: var(--laptop-body);
+    border-radius: 20px;
+    padding: 16px 16px 0 16px;
+    box-shadow: 
+      0 40px 80px rgba(0,0,0,0.8),
+      0 0 0 1px rgba(255,255,255,0.05),
+      inset 0 1px 0 rgba(255,255,255,0.1);
+    display: flex;
+    flex-direction: column;
+    position: relative;
+  }
+  
+  #laptop-lid {
+    flex: 1;
+    background: #000;
+    border-radius: 12px 12px 0 0;
+    position: relative;
+    overflow: hidden;
+    box-shadow: inset 0 0 20px rgba(0,0,0,0.8);
+    display: flex;
+    flex-direction: column;
+  }
+
+  /* Webcam */
+  .webcam {
+    position: absolute;
+    top: 8px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 8px;
+    height: 8px;
+    background: #1a1a1a;
+    border-radius: 50%;
+    z-index: 10;
+    box-shadow: inset 0 0 2px rgba(0,0,0,0.8);
+  }
+  .webcam::after {
+    content: '';
+    position: absolute;
+    top: 2px; left: 2px;
+    width: 4px; height: 4px;
+    background: #0f3460;
+    border-radius: 50%;
+    opacity: 0.6;
+  }
+
+  /* Screen Area */
+  #screen-area {
+    flex: 1;
+    position: relative;
+    overflow: hidden;
+    background: var(--wallpaper);
+    margin: 14px 2px 0 2px;
+    border-radius: 4px;
+  }
+
+  /* Keyboard Area (Visual) */
+  #keyboard-area {
+    height: 24px;
+    background: var(--laptop-keyboard);
+    border-radius: 0 0 16px 16px;
+    margin-top: 4px;
+    position: relative;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+  }
+  .trackpad {
+    position: absolute;
+    bottom: -16px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 120px;
+    height: 8px;
+    background: #333;
+    border-radius: 0 0 8px 8px;
+    opacity: 0.5;
   }
 
   /* Boot Screen */
-  #boot-screen { position: fixed; inset: 0; background: #0a0a0a; z-index: 99999; display: flex; flex-direction: column; align-items: center; justify-content: center; transition: opacity 0.6s; }
-  .boot-logo { font-size: clamp(48px, 10vw, 72px); margin-bottom: 20px; animation: pulse 2s infinite; }
-  .boot-output { width: min(90%, 500px); font-family: 'Consolas', monospace; font-size: clamp(12px, 2.5vw, 13px); color: #0f0; line-height: 1.7; height: 180px; overflow: hidden; }
-  .boot-bar { width: min(80%, 300px); height: 4px; background: #222; border-radius: 4px; margin-top: 30px; overflow: hidden; }
-  .boot-bar-inner { height: 100%; background: var(--accent); animation: bootProgress 2.8s ease forwards; }
+  #boot-screen { 
+    position: absolute; inset: 0; background: #0a0a0a; z-index: 99999; 
+    display: flex; flex-direction: column; align-items: center; justify-content: center; 
+    transition: opacity 0.6s ease; 
+  }
+  .boot-logo { 
+    font-size: clamp(40px, 8vw, 64px); margin-bottom: 20px; 
+    animation: pulse 2s infinite ease-in-out; 
+  }
+  .boot-output { 
+    width: min(90%, 480px); font-family: 'Courier New', monospace; 
+    font-size: clamp(11px, 2vw, 13px); color: #a6e3a1; line-height: 1.8; 
+    height: 160px; overflow: hidden; text-shadow: 0 0 8px rgba(166, 227, 161, 0.3);
+  }
+  .boot-bar { 
+    width: min(70%, 280px); height: 3px; background: #222; border-radius: 4px; 
+    margin-top: 24px; overflow: hidden; 
+  }
+  .boot-bar-inner { 
+    height: 100%; background: var(--accent); width: 0; 
+    animation: bootProgress 2.8s ease forwards; 
+  }
 
-  @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.5} }
+  @keyframes pulse { 0%,100%{opacity:1; transform: scale(1);} 50%{opacity:0.6; transform: scale(0.95);} }
   @keyframes bootProgress { to { width: 100%; } }
 
   /* Desktop */
   #desktop { 
-    position: absolute; inset: 0; background: var(--wallpaper); background-size: cover; 
-    padding: 20px 16px; display: grid; grid-template-columns: repeat(auto-fill, minmax(88px, 1fr)); 
-    gap: 18px; align-content: start; overflow-y: auto;
+    position: absolute; inset: 0; background: var(--wallpaper); 
+    padding: 24px 20px 70px 20px; 
+    display: grid; 
+    grid-template-columns: repeat(auto-fill, minmax(90px, 1fr));
+    grid-auto-rows: min-content;
+    gap: clamp(10px, 2vh, 20px);
+    justify-items: center; align-content: start;
+    overflow-y: auto;
+    transition: background 0.5s;
   }
 
   .desktop-icon { 
-    width: 88px; text-align: center; cursor: pointer; padding: 8px; border-radius: 12px; 
-    transition: all 0.2s ease;
+    width: 100%; max-width: 90px;
+    display: flex; flex-direction: column; align-items: center; 
+    cursor: pointer; padding: 10px 6px; border-radius: var(--radius); 
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+    position: relative;
   }
-  .desktop-icon:hover { background: rgba(255,255,255,0.15); transform: scale(1.08); }
-  .desktop-icon:active { transform: scale(0.92); }
-  .desktop-icon-img { font-size: clamp(36px, 7vw, 48px); margin-bottom: 6px; }
-  .desktop-icon-text { font-size: 13px; text-shadow: 0 2px 4px rgba(0,0,0,0.8); font-weight: 500; }
+  .desktop-icon:hover, .desktop-icon:active { 
+    background: rgba(255,255,255,0.12); transform: scale(1.05); 
+  }
+  .desktop-icon-img { 
+    width: clamp(48px, 5vw, 56px); height: clamp(48px, 5vw, 56px);
+    display: flex; align-items: center; justify-content: center;
+    margin-bottom: 6px; 
+    filter: drop-shadow(0 4px 8px rgba(0,0,0,0.4));
+    transition: transform 0.2s ease;
+  }
+  .desktop-icon:hover .desktop-icon-img { transform: translateY(-2px); }
+  .desktop-icon-text { 
+    font-size: clamp(11px, 1.2vw, 12px); 
+    text-shadow: 0 2px 4px rgba(0,0,0,0.9); 
+    font-weight: 500; text-align: center;
+    color: var(--text);
+  }
 
+  /* Taskbar */
+  #taskbar {
+    position: absolute; bottom: 0; left: 0; right: 0; height: 48px;
+    background: var(--taskbar-bg); backdrop-filter: blur(16px);
+    border-top: 1px solid rgba(255,255,255,0.06);
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 0 14px; z-index: 9999;
+  }
+  .start-btn {
+    width: 36px; height: 36px; border-radius: 10px;
+    background: rgba(255,255,255,0.1);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 18px; cursor: pointer; transition: all 0.2s;
+    border: 1px solid rgba(255,255,255,0.05);
+  }
+  .start-btn:hover { background: rgba(255,255,255,0.2); transform: scale(1.05); }
+  .taskbar-apps {
+    display: flex; gap: 6px; flex: 1; justify-content: center;
+    overflow-x: auto; scrollbar-width: none; padding: 0 8px;
+  }
+  .taskbar-apps::-webkit-scrollbar { display: none; }
+  .taskbar-app {
+    min-width: 36px; height: 36px; border-radius: 8px;
+    background: rgba(255,255,255,0.06);
+    display: flex; align-items: center; justify-content: center;
+    cursor: pointer; transition: all 0.2s; border: 1px solid rgba(255,255,255,0.04);
+    padding: 0 10px; font-size: 11px; color: var(--text-dim); white-space: nowrap;
+    gap: 6px;
+  }
+  .taskbar-app:hover { background: rgba(255,255,255,0.12); color: var(--text); }
+  .taskbar-app.active { 
+    background: rgba(137, 180, 250, 0.18); 
+    color: var(--accent); 
+    border-color: rgba(137, 180, 250, 0.25); 
+    box-shadow: 0 0 12px rgba(137, 180, 250, 0.1);
+  }
+  .taskbar-app svg { width: 16px; height: 16px; }
+  .system-tray {
+    display: flex; align-items: center; gap: 10px;
+  }
+  .tray-icon {
+    width: 16px; height: 16px;
+    opacity: 0.7;
+    cursor: pointer;
+    transition: opacity 0.2s;
+  }
+  .tray-icon:hover { opacity: 1; }
+  .tray-text {
+    font-size: 10px;
+    color: var(--text-dim);
+    font-family: 'Courier New', monospace;
+    transition: color 0.3s;
+  }
+  .tray-text.changed { color: var(--accent); }
+  .clock {
+    font-family: 'Segoe UI', monospace; font-size: 12px; font-weight: 600;
+    color: var(--text-dim); min-width: 52px; text-align: right;
+    display: flex; flex-direction: column; align-items: flex-end; line-height: 1.2;
+  }
+  .clock-date { font-size: 9px; opacity: 0.7; font-weight: 400; }
+
+  /* Start Menu */
+  #start-menu {
+    position: absolute; bottom: 54px; left: 10px;
+    width: min(300px, 80vw); max-height: 55vh;
+    background: var(--taskbar-bg); backdrop-filter: blur(24px);
+    border: 1px solid rgba(255,255,255,0.1); border-radius: var(--radius);
+    box-shadow: 0 16px 48px rgba(0,0,0,0.7);
+    display: none; flex-direction: column; padding: 14px;
+    z-index: 9998; overflow-y: auto;
+  }
+  #start-menu.show { display: flex; animation: slideUp 0.2s ease; }
+  @keyframes slideUp { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+  .start-header { font-size: 11px; text-transform: uppercase; letter-spacing: 1.2px; color: var(--text-dim); margin-bottom: 10px; padding: 0 6px; font-weight: 600; }
+  .start-item {
+    display: flex; align-items: center; gap: 12px; padding: 8px 10px;
+    border-radius: 8px; cursor: pointer; transition: all 0.15s;
+    color: var(--text); font-size: 13px;
+  }
+  .start-item:hover { background: rgba(255,255,255,0.1); }
+  .start-item svg { width: 22px; height: 22px; flex-shrink: 0; }
+
+  /* Window */
   .window { 
     position: absolute; background: var(--window-bg); border-radius: var(--radius); 
-    box-shadow: 0 12px 40px rgba(0,0,0,0.5); display: flex; flex-direction: column; overflow: hidden; 
-    min-width: 260px; min-height: 180px; max-width: 96vw; max-height: calc(100dvh - 70px);
-    animation: windowOpen 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+    box-shadow: 0 20px 60px rgba(0,0,0,0.8); display: flex; flex-direction: column; overflow: hidden; 
+    min-width: 260px; min-height: 180px; max-width: 94%; max-height: calc(100% - 60px);
+    border: 1px solid rgba(255,255,255,0.08);
+    transition: transform 0.1s, opacity 0.1s;
   }
-  @keyframes windowOpen { from { opacity: 0; transform: scale(0.92) translateY(15px); } to { opacity: 1; transform: scale(1) translateY(0); } }
-
-  .titlebar { height: 42px; background: var(--titlebar-bg); display: flex; align-items: center; justify-content: space-between; padding: 0 12px; border-bottom: 1px solid rgba(255,255,255,0.08); }
-  .titlebar-buttons button { width: 14px; height: 14px; border-radius: 50%; border: none; cursor: pointer; }
-  .tb-btn.minimize { background: #f1c40f; }
-  .tb-btn.maximize { background: #2ecc71; }
-  .tb-btn.close { background: #e74c3c; }
-
-  .window-content { flex: 1; overflow: auto; padding: 10px; }
-
-  #taskbar { 
-    position: fixed; bottom: 0; left: 0; right: 0; height: 56px; 
-    background: var(--taskbar-bg); backdrop-filter: blur(20px); 
-    display: flex; align-items: center; padding: 0 8px; z-index: 9999; gap: 6px;
+  .window.maximized { left: 0 !important; top: 0 !important; width: 100% !important; height: 100% !important; border-radius: 0; max-height: 100%; }
+  .titlebar { 
+    height: 40px; background: var(--titlebar-bg); display: flex; align-items: center; 
+    justify-content: space-between; padding: 0 12px; border-bottom: 1px solid rgba(255,255,255,0.05);
+    cursor: default;
   }
-  .start-btn { width: 50px; height: 50px; font-size: 28px; border-radius: 12px; cursor: pointer; }
-  .taskbar-apps { display: flex; gap: 4px; flex: 1; overflow-x: auto; }
-
-  #start-menu { 
-    position: fixed; bottom: 64px; left: 12px; 
-    width: min(520px, 94vw); height: min(520px, 82vh); 
-    background: rgba(28,28,28,0.97); backdrop-filter: blur(24px); 
-    border-radius: 18px; border: 1px solid rgba(255,255,255,0.1); 
-    display: none; flex-direction: column; padding: 20px; z-index: 9998;
+  .titlebar-title { font-size: 12px; font-weight: 600; color: var(--text); display: flex; align-items: center; gap: 8px; }
+  .titlebar-title svg { width: 14px; height: 14px; opacity: 0.8; }
+  .titlebar-buttons { display: flex; gap: 8px; }
+  .titlebar-buttons button { 
+    width: 12px; height: 12px; border-radius: 50%; border: none; cursor: pointer; 
+    transition: all 0.2s; position: relative;
   }
-  #start-menu.open { display: flex; }
+  .btn-min { background: #f9e2af; }
+  .btn-max { background: #a6e3a1; }
+  .btn-close { background: #f38ba8; }
+  .window-content { flex: 1; overflow: auto; padding: 0; background: var(--content-bg); }
+
+  /* App Specific Styles */
+  .app-terminal { padding: 14px; font-family: 'Courier New', monospace; font-size: 12px; color: #a6e3a1; line-height: 1.6; height: 100%; overflow-y: auto; }
+  .app-terminal .prompt { color: #89b4fa; }
+  .app-terminal .cmd-input { display: flex; align-items: center; gap: 6px; }
+  .app-terminal input { background: transparent; border: none; color: #cdd6f4; font-family: inherit; font-size: inherit; outline: none; flex: 1; caret-color: #a6e3a1; }
+  .app-terminal .cursor { display: inline-block; width: 7px; height: 14px; background: #a6e3a1; animation: blink 1s infinite; vertical-align: middle; }
+  @keyframes blink { 0%,100%{opacity:1} 50%{opacity:0} }
+
+  .app-files { padding: 12px; display: grid; grid-template-columns: repeat(auto-fill, minmax(72px, 1fr)); gap: 12px; }
+  .file-item { display: flex; flex-direction: column; align-items: center; gap: 6px; cursor: pointer; padding: 10px; border-radius: 8px; transition: background 0.2s; position: relative; }
+  .file-item:hover { background: rgba(255,255,255,0.06); }
+  .file-item svg { width: 36px; height: 36px; }
+  .file-item span { font-size: 10px; color: var(--text-dim); text-align: center; word-break: break-word; }
+  .file-actions { position: absolute; top: 2px; right: 2px; display: none; }
+  .file-item:hover .file-actions { display: block; }
+  .file-actions button { background: none; border: none; color: var(--text-dim); cursor: pointer; font-size: 12px; padding: 2px; }
+  .file-actions button:hover { color: var(--accent); }
+  .upload-area { grid-column: 1/-1; padding: 16px; border: 2px dashed rgba(255,255,255,0.1); border-radius: 10px; text-align: center; cursor: pointer; transition: all 0.2s; margin-bottom: 8px; }
+  .upload-area:hover { border-color: var(--accent); background: rgba(137,180,250,0.05); }
+  .upload-area input { display: none; }
+
+  .app-calc { padding: 16px; display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; max-width: 300px; margin: 0 auto; }
+  .calc-display { grid-column: 1/-1; background: rgba(0,0,0,0.3); border-radius: 8px; padding: 14px; font-size: 22px; text-align: right; margin-bottom: 6px; border: 1px solid rgba(255,255,255,0.05); color: var(--text); font-family: monospace; overflow: hidden; }
+  .calc-btn { padding: 14px; border-radius: 8px; border: none; background: rgba(255,255,255,0.06); color: var(--text); font-size: 15px; cursor: pointer; transition: all 0.15s; }
+  .calc-btn:hover { background: rgba(255,255,255,0.12); }
+  .calc-btn.op { background: rgba(137, 180, 250, 0.15); color: var(--accent); }
+  .calc-btn.equals { background: var(--accent); color: #1e1e2e; grid-column: span 2; font-weight: 700; }
+  .calc-btn.equals:hover { background: var(--accent-hover); }
+
+  .app-browser { display: flex; flex-direction: column; height: 100%; }
+  .browser-bar { display: flex; gap: 8px; padding: 10px 14px; background: var(--titlebar-bg); border-bottom: 1px solid rgba(255,255,255,0.05); align-items: center; }
+  .browser-bar input { flex: 1; background: rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.1); border-radius: 6px; padding: 6px 10px; color: var(--text); font-size: 12px; outline: none; }
+  .browser-bar button { padding: 6px 12px; border-radius: 6px; border: none; background: rgba(255,255,255,0.08); color: var(--text); font-size: 11px; cursor: pointer; }
+  .browser-content { flex: 1; padding: 20px; overflow-y: auto; color: var(--text-dim); font-size: 13px; }
+
+  .app-camera { display: flex; flex-direction: column; align-items: center; padding: 16px; gap: 12px; }
+  .camera-preview { width: 100%; max-width: 400px; aspect-ratio: 4/3; background: #000; border-radius: 10px; overflow: hidden; position: relative; border: 1px solid rgba(255,255,255,0.1); }
+  .camera-preview video, .camera-preview canvas { width: 100%; height: 100%; object-fit: cover; }
+  .camera-preview .no-camera { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; color: var(--text-dim); font-size: 13px; flex-direction: column; gap: 8px; }
+  .camera-controls { display: flex; gap: 10px; }
+  .cam-btn { padding: 10px 20px; border-radius: 8px; border: none; background: var(--accent); color: #1e1e2e; font-weight: 600; font-size: 13px; cursor: pointer; transition: all 0.2s; }
+  .cam-btn:hover { background: var(--accent-hover); transform: translateY(-1px); }
+  .cam-btn:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
+  .cam-btn.secondary { background: rgba(255,255,255,0.1); color: var(--text); }
+
+  .app-gallery { padding: 12px; display: grid; grid-template-columns: repeat(auto-fill, minmax(100px, 1fr)); gap: 10px; }
+  .gallery-item { aspect-ratio: 1; border-radius: 8px; overflow: hidden; background: rgba(0,0,0,0.3); cursor: pointer; border: 1px solid rgba(255,255,255,0.05); transition: transform 0.2s; position: relative; }
+  .gallery-item:hover { transform: scale(1.03); }
+  .gallery-item img { width: 100%; height: 100%; object-fit: cover; }
+  .gallery-empty { grid-column: 1/-1; text-align: center; padding: 40px; color: var(--text-dim); font-size: 13px; }
+  .gallery-actions { position: absolute; bottom: 4px; right: 4px; display: none; gap: 4px; }
+  .gallery-item:hover .gallery-actions { display: flex; }
+  .gallery-actions button { background: rgba(0,0,0,0.6); border: none; color: white; border-radius: 4px; padding: 4px 6px; font-size: 11px; cursor: pointer; backdrop-filter: blur(4px); }
+  .gallery-actions button:hover { background: var(--accent); color: #1e1e2e; }
+
+  .app-music { padding: 20px; display: flex; flex-direction: column; align-items: center; gap: 16px; }
+  .music-cover { width: 160px; height: 160px; background: linear-gradient(135deg, #313244, #1e1e2e); border-radius: 12px; display: flex; align-items: center; justify-content: center; box-shadow: 0 8px 24px rgba(0,0,0,0.4); position: relative; overflow: hidden; }
+  .music-cover img { width: 100%; height: 100%; object-fit: cover; }
+  .music-info { text-align: center; }
+  .music-title { font-size: 16px; font-weight: 600; color: var(--text); margin-bottom: 4px; }
+  .music-artist { font-size: 13px; color: var(--text-dim); }
+  .music-controls { display: flex; gap: 16px; align-items: center; margin-top: 8px; }
+  .music-btn { width: 44px; height: 44px; border-radius: 50%; border: none; background: rgba(255,255,255,0.1); color: var(--text); display: flex; align-items: center; justify-content: center; cursor: pointer; transition: all 0.2s; font-size: 16px; }
+  .music-btn:hover { background: rgba(255,255,255,0.2); transform: scale(1.1); }
+  .music-btn.play { width: 56px; height: 56px; background: var(--accent); color: #1e1e2e; font-size: 20px; }
+  .music-btn.play:hover { background: var(--accent-hover); }
+  .music-list { width: 100%; max-width: 300px; margin-top: 12px; }
+  .music-track { display: flex; align-items: center; justify-content: space-between; padding: 8px 12px; border-radius: 8px; cursor: pointer; transition: background 0.2s; font-size: 12px; }
+  .music-track:hover { background: rgba(255,255,255,0.06); }
+  .music-track.active { background: rgba(137,180,250,0.15); color: var(--accent); }
+  .music-track-name { flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; margin-right: 8px; }
+
+  .app-notes { padding: 16px; }
+  .note-card { background: rgba(249,226,175,0.08); padding: 14px; border-radius: 8px; border-left: 3px solid #f9e2af; margin-bottom: 10px; cursor: pointer; transition: all 0.2s; }
+  .note-card:hover { background: rgba(249,226,175,0.12); transform: translateX(4px); }
+  .note-title { font-weight: 600; color: #f9e2af; font-size: 13px; margin-bottom: 4px; }
+  .note-body { font-size: 12px; color: var(--text-dim); line-height: 1.5; }
+
+  .app-settings { padding: 20px; max-width: 420px; margin: 0 auto; }
+  .settings-section { margin-bottom: 20px; }
+  .settings-title { font-size: 11px; text-transform: uppercase; letter-spacing: 1px; color: var(--text-dim); margin-bottom: 10px; font-weight: 600; }
+  .settings-row { display: flex; justify-content: space-between; align-items: center; padding: 10px 12px; background: rgba(255,255,255,0.04); border-radius: 8px; margin-bottom: 8px; }
+  .settings-row span { font-size: 13px; }
+  .toggle { width: 40px; height: 22px; background: #6c7086; border-radius: 11px; position: relative; cursor: pointer; transition: background 0.3s; flex-shrink: 0; }
+  .toggle.on { background: var(--accent); }
+  .toggle::after { content: ''; position: absolute; top: 2px; left: 2px; width: 18px; height: 18px; background: white; border-radius: 50%; transition: transform 0.3s; box-shadow: 0 2px 4px rgba(0,0,0,0.2); }
+  .toggle.on::after { transform: translateX(18px); }
+  .settings-select { background: rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.1); color: var(--text); border-radius: 6px; padding: 4px 8px; font-size: 12px; outline: none; cursor: pointer; }
+
+  /* Snake Game */
+  .app-snake { display: flex; flex-direction: column; align-items: center; padding: 16px; gap: 12px; user-select: none; }
+  .snake-canvas { border-radius: 8px; border: 1px solid rgba(255,255,255,0.1); background: #0a0a0a; touch-action: none; }
+  .snake-ui { display: flex; gap: 20px; font-size: 14px; font-weight: 600; }
+  .snake-score { color: var(--accent); }
+  .snake-high { color: #f9e2af; }
+  .snake-controls { display: grid; grid-template-columns: repeat(3, 48px); gap: 4px; margin-top: 8px; }
+  .snake-btn { width: 48px; height: 48px; border-radius: 10px; border: none; background: rgba(255,255,255,0.1); color: var(--text); font-size: 20px; cursor: pointer; transition: all 0.1s; display: flex; align-items: center; justify-content: center; }
+  .snake-btn:active { background: var(--accent); color: #1e1e2e; transform: scale(0.95); }
+  .snake-hint { font-size: 11px; color: var(--text-dim); margin-top: 4px; }
+
+  /* Lock Screen */
+  #lock-screen {
+    position: absolute; inset: 0; background: rgba(0,0,0,0.85); backdrop-filter: blur(20px);
+    z-index: 100000; display: none; flex-direction: column; align-items: center; justify-content: center;
+    color: var(--text); animation: fadeIn 0.5s ease;
+  }
+  #lock-screen.show { display: flex; }
+  @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+  .lock-clock { font-size: clamp(36px, 6vw, 56px); font-weight: 300; letter-spacing: 2px; margin-bottom: 8px; }
+  .lock-date { font-size: clamp(14px, 2vw, 18px); color: var(--text-dim); margin-bottom: 32px; }
+  .lock-hint { font-size: 13px; color: var(--text-dim); animation: pulse 2s infinite; }
+  .lock-icon { font-size: 32px; margin-bottom: 16px; }
+
+  /* Brightness Overlay */
+  #brightness-overlay {
+    position: absolute; inset: 0; background: #000; pointer-events: none;
+    z-index: 99990; opacity: 0; transition: opacity 0.3s;
+  }
+
+  /* IP Change Toast */
+  #ip-toast {
+    position: absolute; top: 12px; right: 12px;
+    background: var(--taskbar-bg); backdrop-filter: blur(12px);
+    border: 1px solid rgba(137,180,250,0.3); border-radius: 10px;
+    padding: 10px 16px; font-size: 12px; color: var(--accent);
+    z-index: 99995; opacity: 0; transform: translateY(-10px);
+    transition: all 0.4s ease; pointer-events: none;
+    box-shadow: 0 8px 24px rgba(0,0,0,0.5);
+  }
+  #ip-toast.show { opacity: 1; transform: translateY(0); }
+  #ip-toast .ip-label { font-size: 10px; color: var(--text-dim); text-transform: uppercase; letter-spacing: 1px; margin-bottom: 2px; }
+
+  /* Scrollbar */
+  ::-webkit-scrollbar { width: 6px; height: 6px; }
+  ::-webkit-scrollbar-track { background: transparent; }
+  ::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.15); border-radius: 3px; }
+  ::-webkit-scrollbar-thumb:hover { background: rgba(255,255,255,0.25); }
+
+  /* Mobile adaptation */
+  @media (max-width: 640px) {
+    body { align-items: flex-start; justify-content: flex-start; }
+    #laptop-container { width: 100vw; height: 100dvh; border-radius: 0; padding: 0; }
+    #laptop-lid { border-radius: 0; }
+    #keyboard-area { display: none; }
+    .webcam { display: none; }
+    #screen-area { margin: 0; border-radius: 0; }
+    .desktop-icon { max-width: 80px; }
+    .snake-controls { display: grid !important; }
+  }
+  @media (min-width: 641px) {
+    .snake-controls { display: none !important; }
+  }
+  @media (min-width: 1400px) {
+    #laptop-container { height: min(90vh, 800px); }
+    #keyboard-area { height: 32px; }
+    .trackpad { width: 160px; height: 12px; bottom: -20px; }
+  }
 </style>
 </head>
 <body>
 
-<div id="boot-screen">
-  <div class="boot-logo">🐧</div>
-  <div class="boot-output" id="boot-output"></div>
-  <div class="boot-bar"><div class="boot-bar-inner"></div></div>
-</div>
+<div id="laptop-container">
+  <div id="laptop-lid">
+    <div class="webcam"></div>
+    <div id="screen-area">
+      
+      <!-- Brightness Overlay -->
+      <div id="brightness-overlay"></div>
 
-<div id="desktop"></div>
-<div id="windows-container"></div>
+      <!-- IP Change Toast -->
+      <div id="ip-toast">
+        <div class="ip-label">Network Changed</div>
+        <div id="ip-toast-value">192.168.1.42</div>
+      </div>
 
-<div id="taskbar">
-  <div class="start-btn" id="start-btn">🐧</div>
-  <div class="taskbar-apps" id="taskbar-windows"></div>
-  <span class="clock" id="clock">00:00</span>
-</div>
+      <!-- Lock Screen -->
+      <div id="lock-screen">
+        <div class="lock-icon">🔒</div>
+        <div class="lock-clock" id="lock-clock">00:00</div>
+        <div class="lock-date" id="lock-date">Monday, January 1</div>
+        <div class="lock-hint">Click or press any key to wake</div>
+      </div>
 
-<div id="start-menu">
-  <div style="margin-bottom:20px;display:flex;align-items:center;gap:14px">
-    <div style="width:52px;height:52px;border-radius:50%;background:linear-gradient(#4f46e5,#8b5cf6);display:flex;align-items:center;justify-content:center;font-size:28px">👤</div>
-    <div><div style="font-weight:600">User</div><div style="font-size:13px;opacity:0.7">user@weblinux.local</div></div>
+      <!-- Boot Screen -->
+      <div id="boot-screen">
+        <div class="boot-logo">🐧</div>
+        <div class="boot-output" id="boot-output"></div>
+        <div class="boot-bar"><div class="boot-bar-inner"></div></div>
+      </div>
+
+      <!-- Desktop -->
+      <div id="desktop"></div>
+
+      <!-- Windows Container -->
+      <div id="windows-container"></div>
+
+      <!-- Start Menu -->
+      <div id="start-menu">
+        <div class="start-header">Applications</div>
+        <div id="start-menu-items"></div>
+      </div>
+
+      <!-- Taskbar -->
+      <div id="taskbar">
+        <div class="start-btn" id="start-btn">🐧</div>
+        <div class="taskbar-apps" id="taskbar-windows"></div>
+        <div class="system-tray">
+          <span class="tray-text" id="ip-display">192.168.1.42</span>
+          <svg class="tray-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12.55a11 11 0 0 1 14.08 0"/><path d="M1.42 9a16 16 0 0 1 21.16 0"/><path d="M8.53 16.11a6 6 0 0 1 6.95 0"/><line x1="12" y1="20" x2="12.01" y2="20"/></svg>
+          <svg class="tray-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="7" width="20" height="10" rx="2"/><path d="M6 7v10"/><path d="M18 7v10"/><path d="M2 12h20"/></svg>
+          <div class="clock">
+            <span id="clock-time">00:00</span>
+            <span class="clock-date" id="clock-date">Jan 1</span>
+          </div>
+        </div>
+      </div>
+
+    </div>
   </div>
-  <div class="start-apps" id="start-apps" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(100px,1fr));gap:12px;flex:1"></div>
+  <div id="keyboard-area"><div class="trackpad"></div></div>
 </div>
 
 <script>
 let zIndex = 100;
-const windows = [];
+const windows = {};
+let fs = { 'Documents': { type: 'dir', items: {} }, 'Pictures': { type: 'dir', items: {} }, 'Music': { type: 'dir', items: {} }, 'Notes.txt': { type: 'file', content: 'Welcome to Web Linux!\n\nThis is your personal notes file.' } };
+let currentPath = [];
+let photos = [];
+let notes = [
+  { title: 'Welcome', body: 'Click any app to get started. Try the Camera to take real photos!' },
+  { title: 'Shortcuts', body: 'All apps are fully functional. Files, Notes, Gallery, and Camera are connected.' }
+];
+let cameraStream = null;
+let settings = { 
+  darkMode: true, 
+  animations: true, 
+  notifications: true, 
+  sleepEnabled: true, 
+  sleepTimeout: 60000,
+  brightness: 100 
+};
+let musicTracks = [];
+let currentTrack = -1;
+let audioPlayer = null;
+let musicPlaying = false;
+let snakeHighScore = parseInt(localStorage.getItem('snakeHighScore') || '0');
+let inactivityTimer = null;
+let ipInterval = null;
+let currentIP = '192.168.1.42';
 
-class WindowFrame {
-  constructor(title, contentHTML) {
-    this.element = document.createElement('div');
-    this.element.className = 'window';
-    this.element.style.left = (60 + Math.random()*100) + 'px';
-    this.element.style.top = (50 + Math.random()*80) + 'px';
-    this.element.innerHTML = `
-      <div class="titlebar">
-        <div style="font-weight:500">${title}</div>
-        <div style="display:flex;gap:8px">
-          <button class="tb-btn minimize">−</button>
-          <button class="tb-btn maximize">□</button>
-          <button class="tb-btn close">×</button>
-        </div>
+// Load settings from localStorage
+try {
+  const saved = localStorage.getItem('weblinux_settings');
+  if (saved) settings = { ...settings, ...JSON.parse(saved) };
+} catch(e) {}
+
+function saveSettings() {
+  localStorage.setItem('weblinux_settings', JSON.stringify(settings));
+}
+
+// SVG Icons
+const icons = {
+  terminal: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="3" width="20" height="18" rx="2" fill="#1e1e2e" stroke="#89b4fa"/><path d="m6 8 4 4-4 4" stroke="#a6e3a1"/><path d="M12 16h6" stroke="#cdd6f4"/></svg>`,
+  files: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 20h16a2 2 0 0 0 2-2V8a2 2 0 0 0-2-2h-7.93a2 2 0 0 1-1.66-.9l-.82-1.2A2 2 0 0 0 7.93 3H4a2 2 0 0 0-2 2v13a2 2 0 0 0 2 2z" fill="#313244" stroke="#f9e2af"/></svg>`,
+  editor: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" fill="#1e1e2e" stroke="#89b4fa"/><path d="M14 2v6h6" stroke="#89b4fa"/><path d="M16 13H8" stroke="#6c7086"/><path d="M16 17H8" stroke="#6c7086"/><path d="M10 9H8" stroke="#6c7086"/></svg>`,
+  calc: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="4" y="2" width="16" height="20" rx="2" fill="#1e1e2e" stroke="#f38ba8"/><path d="M8 6h8" stroke="#f38ba8" stroke-width="1.5"/><path d="M8 10v8M12 10v8M16 10v8" stroke="#cdd6f4" stroke-width="1.5" stroke-linecap="round"/></svg>`,
+  browser: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10" fill="#1e1e2e" stroke="#89b4fa"/><ellipse cx="12" cy="12" rx="4" ry="10" stroke="#89b4fa"/><path d="M2 12h20" stroke="#89b4fa"/></svg>`,
+  camera: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14.5 4h-5L7 7H4a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2h-3l-2.5-3z" fill="#313244" stroke="#f9e2af"/><circle cx="12" cy="13" r="3" stroke="#a6e3a1"/></svg>`,
+  gallery: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2" fill="#1e1e2e" stroke="#cba6f7"/><circle cx="9" cy="9" r="2" fill="#cba6f7" stroke="none"/><path d="m21 15-5-5L5 21" stroke="#cba6f7"/></svg>`,
+  music: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="6" cy="18" r="3" fill="#1e1e2e" stroke="#a6e3a1"/><circle cx="18" cy="16" r="3" fill="#1e1e2e" stroke="#a6e3a1"/><path d="M18 16V4l-12 2v12" stroke="#a6e3a1"/></svg>`,
+  notes: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" fill="#1e1e2e" stroke="#f9e2af"/><path d="M14 2v6h6" stroke="#f9e2af"/><path d="M8 13h8" stroke="#6c7086"/><path d="M8 17h5" stroke="#6c7086"/></svg>`,
+  settings: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3" fill="#1e1e2e" stroke="#89b4fa"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z" stroke="#89b4fa"/></svg>`,
+  snake: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 10h3v10H4z" fill="#a6e3a1" stroke="#a6e3a1"/><path d="M10 14h3v6h-3z" fill="#a6e3a1" stroke="#a6e3a1"/><path d="M16 8h3v12h-3z" fill="#a6e3a1" stroke="#a6e3a1"/><circle cx="19" cy="6" r="2" fill="#f38ba8" stroke="#f38ba8"/></svg>`,
+  folder: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 20h16a2 2 0 0 0 2-2V8a2 2 0 0 0-2-2h-7.93a2 2 0 0 1-1.66-.9l-.82-1.2A2 2 0 0 0 7.93 3H4a2 2 0 0 0-2 2v13a2 2 0 0 0 2 2z" fill="#313244" stroke="#f9e2af"/></svg>`,
+  file: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" fill="#1e1e2e" stroke="#89b4fa"/><path d="M14 2v6h6" stroke="#89b4fa"/></svg>`
+};
+
+function createWindow(title, innerHTML, iconSvg, width, height) {
+  const id = 'win-' + Date.now() + '-' + Math.random().toString(36).substr(2, 9);
+  const win = document.createElement('div');
+  win.className = 'window';
+  win.id = id;
+  
+  const screenArea = document.getElementById('screen-area');
+  const maxX = screenArea.clientWidth - 300;
+  const maxY = screenArea.clientHeight - 250;
+  const offset = (Object.keys(windows).length * 25) % 100;
+  
+  win.style.left = Math.max(20, Math.min(40 + offset, maxX)) + 'px';
+  win.style.top = Math.max(20, Math.min(30 + offset, maxY)) + 'px';
+  if (width) win.style.width = width;
+  if (height) win.style.height = height;
+  win.style.zIndex = ++zIndex;
+
+  win.innerHTML = `
+    <div class="titlebar">
+      <div class="titlebar-title">${iconSvg || ''}${title}</div>
+      <div class="titlebar-buttons">
+        <button class="btn-min" onclick="minimizeWindow('${id}')"></button>
+        <button class="btn-max" onclick="maximizeWindow('${id}')"></button>
+        <button class="btn-close" onclick="closeWindow('${id}')"></button>
       </div>
-      <div class="window-content">${contentHTML}</div>
-    `;
-    document.getElementById('windows-container').appendChild(this.element);
-    this.makeDraggable();
-    this.addButtons();
-    this.focus();
-  }
-  makeDraggable() {
-    const titlebar = this.element.querySelector('.titlebar');
-    let isDragging = false, x, y;
-    titlebar.addEventListener('mousedown', e => {
-      if (e.target.tagName === 'BUTTON') return;
-      isDragging = true;
-      x = e.clientX - this.element.offsetLeft;
-      y = e.clientY - this.element.offsetTop;
-      this.focus();
-    });
-    document.addEventListener('mousemove', e => {
-      if (!isDragging) return;
-      this.element.style.left = (e.clientX - x) + 'px';
-      this.element.style.top = (e.clientY - y) + 'px';
-    });
-    document.addEventListener('mouseup', () => isDragging = false);
-  }
-  addButtons() {
-    this.element.querySelector('.close').onclick = () => this.element.remove();
-    this.element.querySelector('.minimize').onclick = () => this.element.style.opacity = 0.3;
-    this.element.querySelector('.maximize').onclick = () => this.element.classList.toggle('maximized');
-  }
-  focus() {
-    this.element.style.zIndex = ++zIndex;
+    </div>
+    <div class="window-content">${innerHTML}</div>
+  `;
+
+  document.getElementById('windows-container').appendChild(win);
+  windows[id] = { element: win, title, minimized: false, maximized: false };
+  updateTaskbar();
+
+  const tb = win.querySelector('.titlebar');
+  let dragging = false, offsetX, offsetY;
+  
+  const startDrag = (e) => {
+    if (e.target.tagName === 'BUTTON' || windows[id].maximized) return;
+    dragging = true;
+    const clientX = e.touches ? e.touches[0].clientX : e.clientX;
+    const clientY = e.touches ? e.touches[0].clientY : e.clientY;
+    const rect = win.getBoundingClientRect();
+    const screenRect = screenArea.getBoundingClientRect();
+    offsetX = clientX - rect.left;
+    offsetY = clientY - rect.top;
+    win.style.transition = 'none';
+  };
+  
+  const moveDrag = (e) => {
+    if (!dragging) return;
+    const clientX = e.touches ? e.touches[0].clientX : e.clientX;
+    const clientY = e.touches ? e.touches[0].clientY : e.clientY;
+    const screenRect = screenArea.getBoundingClientRect();
+    let newX = Math.max(0, Math.min(clientX - screenRect.left - offsetX, screenRect.width - win.offsetWidth));
+    let newY = Math.max(0, Math.min(clientY - screenRect.top - offsetY, screenRect.height - win.offsetHeight - 48));
+    win.style.left = newX + 'px';
+    win.style.top = newY + 'px';
+  };
+  
+  const endDrag = () => { dragging = false; win.style.transition = ''; };
+  
+  tb.addEventListener('mousedown', startDrag);
+  tb.addEventListener('touchstart', startDrag, {passive: false});
+  document.addEventListener('mousemove', moveDrag);
+  document.addEventListener('touchmove', moveDrag, {passive: false});
+  document.addEventListener('mouseup', endDrag);
+  document.addEventListener('touchend', endDrag);
+  
+  win.addEventListener('mousedown', () => focusWindow(id));
+  focusWindow(id);
+  return id;
+}
+
+function focusWindow(id) {
+  if (!windows[id]) return;
+  windows[id].element.style.zIndex = ++zIndex;
+  document.querySelectorAll('.taskbar-app').forEach(el => el.classList.remove('active'));
+  const taskbarApp = document.querySelector(`[data-win="${id}"]`);
+  if (taskbarApp) taskbarApp.classList.add('active');
+}
+
+function closeWindow(id) {
+  if (windows[id]) {
+    if (id.includes('camera')) stopCamera();
+    if (windows[id].title === 'Snake') stopSnake();
+    windows[id].element.remove();
+    delete windows[id];
+    updateTaskbar();
   }
 }
 
-// Apps
-function launchApp(name, content) {
-  new WindowFrame(name, content);
+function minimizeWindow(id) {
+  if (!windows[id]) return;
+  windows[id].minimized = !windows[id].minimized;
+  windows[id].element.style.display = windows[id].minimized ? 'none' : 'flex';
+  updateTaskbar();
 }
 
-// Desktop Icons
-function initDesktop() {
-  const appsList = [
-    {name: "Terminal", icon: "🖥️", content: "<h3>Terminal</h3><p>Type <code>help</code> to begin.</p>"},
-    {name: "Files", icon: "📁", content: "<h3>File Manager</h3><p>Responsive File Explorer</p>"},
-    {name: "Editor", icon: "📝", content: "<textarea style='width:100%;height:300px;background:#1e1e1e;color:#ddd;padding:10px'>Welcome to Web Linux!</textarea>"},
-    {name: "Calculator", icon: "🧮", content: "<h2 style='text-align:center'>🧮 Calculator</h2>"},
-    {name: "Browser", icon: "🌐", content: "<h3>Web Browser</h3><p>Simulated browser</p>"}
-  ];
-
-  const desktop = document.getElementById('desktop');
-  appsList.forEach(app => {
-    const div = document.createElement('div');
-    div.className = 'desktop-icon';
-    div.innerHTML = `<div class="desktop-icon-img">\( {app.icon}</div><div class="desktop-icon-text"> \){app.name}</div>`;
-    div.onclick = () => launchApp(app.name, app.content);
-    desktop.appendChild(div);
-  });
+function maximizeWindow(id) {
+  if (!windows[id]) return;
+  windows[id].maximized = !windows[id].maximized;
+  windows[id].element.classList.toggle('maximized', windows[id].maximized);
 }
 
-// Start Menu
-function initStartMenu() {
-  const container = document.getElementById('start-apps');
-  const apps = ["Terminal", "Files", "Editor", "Calculator", "Browser"];
-  apps.forEach(name => {
-    const el = document.createElement('div');
-    el.style.textAlign = "center";
-    el.style.cursor = "pointer";
-    el.innerHTML = `<div style="font-size:42px;margin-bottom:6px">📦</div><div>${name}</div>`;
-    el.onclick = () => {
-      launchApp(name, `<h3>${name}</h3><p>App launched successfully.</p>`);
-      document.getElementById('start-menu').classList.remove('open');
+function updateTaskbar() {
+  const container = document.getElementById('taskbar-windows');
+  container.innerHTML = '';
+  Object.entries(windows).forEach(([id, win]) => {
+    const app = document.createElement('div');
+    app.className = 'taskbar-app' + (win.element.style.display !== 'none' ? ' active' : '');
+    app.dataset.win = id;
+    app.innerHTML = `<span>${win.title}</span>`;
+    app.onclick = () => {
+      if (win.minimized) {
+        win.minimized = false;
+        win.element.style.display = 'flex';
+        focusWindow(id);
+      } else if (win.element.style.zIndex == zIndex) {
+        minimizeWindow(id);
+      } else {
+        focusWindow(id);
+      }
     };
-    container.appendChild(el);
+    container.appendChild(app);
   });
 }
 
-// Boot
+// ============ APP CONTENT GENERATORS ============
+
+function getTerminalContent() {
+  return `<div class="app-terminal" id="term-${Date.now()}">
+    <div>user@weblinux:~$ neofetch</div>
+    <div style="margin:8px 0; color:#cdd6f4;">
+      <span style="color:#f38ba8">  .^.</span>    OS: Web Linux Replica v3.0<br>
+      <span style="color:#f9e2af"> /   \\</span>   Kernel: 6.5.0-web<br>
+      <span style="color:#a6e3a1">(  o  )</span>  Uptime: ${Math.floor(performance.now()/60000)} mins<br>
+      <span style="color:#89b4fa"> \\   /</span>   Shell: bash 5.2.0<br>
+      <span style="color:#cba6f7">  'v'</span>   DE: WebDesktop<br>
+      &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WM: WebWM<br>
+      &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Resolution: ${document.getElementById('screen-area').clientWidth}x${document.getElementById('screen-area').clientHeight}<br>
+      &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Network: <span class="live-ip" id="term-ip">${currentIP}</span>
+    </div>
+    <div class="prompt">user@weblinux:~$ <span class="cursor"></span></div>
+  </div>`;
+}
+
+function getFilesContent(path = []) {
+  let current = fs;
+  let pathStr = '~';
+  for (const p of path) {
+    current = current[p].items;
+    pathStr += '/' + p;
+  }
+  
+  let html = `<div style="padding:8px 12px;background:rgba(255,255,255,0.03);font-size:11px;color:var(--text-dim);border-bottom:1px solid rgba(255,255,255,0.05);display:flex;gap:8px;align-items:center;">
+    <span style="cursor:pointer;color:var(--accent);" onclick="refreshFilesWindow('${path.join(',')}')">🏠</span>
+    <span>${pathStr}</span>
+  </div>
+  <div class="upload-area" onclick="document.getElementById('files-upload-${path.join('-')}').click()">
+    <div style="font-size:20px;margin-bottom:4px;">📤</div>
+    <div style="font-size:12px;">Click to import files from device</div>
+    <input type="file" id="files-upload-${path.join('-')}" multiple onchange="handleFileImport(this, '${path.join(',')}')">
+  </div>
+  <div class="app-files">`;
+  
+  if (path.length > 0) {
+    html += `<div class="file-item" onclick="navigateUp('${path.join(',')}')"><div style="font-size:28px;">📁</div><span>..</span></div>`;
+  }
+  
+  for (const [name, item] of Object.entries(current)) {
+    if (item.type === 'dir') {
+      html += `<div class="file-item" onclick="navigateFiles('${path.join(',')}', '${name}')"><div style="font-size:28px;">📁</div><span>${name}</span></div>`;
+    } else {
+      html += `<div class="file-item" onclick="openFile('${path.join(',')}', '${name}')">${icons.file}<span>${name}</span>
+        <div class="file-actions"><button onclick="event.stopPropagation();downloadFile('${path.join(',')}', '${name}')" title="Download">⬇</button></div>
+      </div>`;
+    }
+  }
+  html += `</div>`;
+  return html;
+}
+
+function handleFileImport(input, pathStr) {
+  const path = pathStr ? pathStr.split(',') : [];
+  let current = fs;
+  for (const p of path) current = current[p].items;
+  
+  Array.from(input.files).forEach(file => {
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      current[file.name] = { type: 'file', content: e.target.result, mime: file.type };
+      if (file.type.startsWith('image/')) {
+        photos.unshift({ id: Date.now() + Math.random(), src: e.target.result, date: new Date().toLocaleString(), name: file.name });
+        fs.Pictures.items[file.name] = { type: 'file', content: e.target.result, mime: file.type };
+        const galleryWin = Object.keys(windows).find(id => windows[id].title === 'Gallery');
+        if (galleryWin) windows[galleryWin].element.querySelector('.window-content').innerHTML = getGalleryContent();
+      }
+      if (file.type.startsWith('audio/')) {
+        musicTracks.push({ name: file.name, src: e.target.result });
+        fs.Music.items[file.name] = { type: 'file', content: e.target.result, mime: file.type };
+        const musicWin = Object.keys(windows).find(id => windows[id].title === 'Music');
+        if (musicWin) windows[musicWin].element.querySelector('.window-content').innerHTML = getMusicContent();
+      }
+      refreshFilesWindow(pathStr);
+    };
+    reader.readAsDataURL(file);
+  });
+  input.value = '';
+}
+
+function downloadFile(pathStr, name) {
+  const path = pathStr ? pathStr.split(',') : [];
+  let current = fs;
+  for (const p of path) current = current[p].items;
+  const file = current[name];
+  if (!file) return;
+  const a = document.createElement('a');
+  a.href = file.content;
+  a.download = name;
+  a.click();
+}
+
+function refreshFilesWindow(pathStr) {
+  const path = pathStr ? pathStr.split(',') : [];
+  const winId = Object.keys(windows).find(id => windows[id].title === 'Files');
+  if (winId) {
+    windows[winId].element.querySelector('.window-content').innerHTML = getFilesContent(path);
+  }
+}
+
+function navigateFiles(pathStr, name) {
+  const path = pathStr ? pathStr.split(',') : [];
+  path.push(name);
+  const winId = Object.keys(windows).find(id => windows[id].title === 'Files');
+  if (winId) {
+    windows[winId].element.querySelector('.window-content').innerHTML = getFilesContent(path);
+  }
+}
+
+function navigateUp(pathStr) {
+  const path = pathStr ? pathStr.split(',') : [];
+  path.pop();
+  const winId = Object.keys(windows).find(id => windows[id].title === 'Files');
+  if (winId) {
+    windows[winId].element.querySelector('.window-content').innerHTML = getFilesContent(path);
+  }
+}
+
+function openFile(pathStr, name) {
+  const path = pathStr ? pathStr.split(',') : [];
+  let current = fs;
+  for (const p of path) current = current[p].items;
+  const file = current[name];
+  if (!file) return;
+  
+  if (name.endsWith('.txt') || (file.mime && file.mime.startsWith('text/'))) {
+    createWindow(name, `<div style="padding:16px;height:100%;"><textarea style="width:100%;height:100%;background:transparent;border:none;color:var(--text);font-family:monospace;font-size:13px;resize:none;outline:none;line-height:1.6;" spellcheck="false" oninput="saveFile('${path.join(',')}', '${name}', this.value)">${file.content}</textarea></div>`, icons.editor);
+  } else if (file.mime && file.mime.startsWith('image/')) {
+    createWindow(name, `<div style="padding:16px;display:flex;justify-content:center;align-items:center;height:100%;"><img src="${file.content}" style="max-width:100%;max-height:100%;border-radius:8px;"></div>`, icons.gallery);
+  } else if (file.mime && file.mime.startsWith('audio/')) {
+    createWindow(name, `<div style="padding:20px;display:flex;flex-direction:column;align-items:center;gap:12px;"><audio controls src="${file.content}" style="width:100%;"></audio><div style="font-size:12px;color:var(--text-dim);">${name}</div></div>`, icons.music);
+  }
+}
+
+function saveFile(pathStr, name, content) {
+  const path = pathStr ? pathStr.split(',') : [];
+  let current = fs;
+  for (const p of path) current = current[p].items;
+  if (current[name]) current[name].content = content;
+}
+
+function getCalcContent() {
+  return `<div class="app-calc">
+    <div class="calc-display" id="calc-display">0</div>
+    <button class="calc-btn" onclick="calc('C')">C</button>
+    <button class="calc-btn" onclick="calc('(')">(</button>
+    <button class="calc-btn" onclick="calc(')')">)</button>
+    <button class="calc-btn op" onclick="calc('/')">÷</button>
+    <button class="calc-btn" onclick="calc('7')">7</button>
+    <button class="calc-btn" onclick="calc('8')">8</button>
+    <button class="calc-btn" onclick="calc('9')">9</button>
+    <button class="calc-btn op" onclick="calc('*')">×</button>
+    <button class="calc-btn" onclick="calc('4')">4</button>
+    <button class="calc-btn" onclick="calc('5')">5</button>
+    <button class="calc-btn" onclick="calc('6')">6</button>
+    <button class="calc-btn op" onclick="calc('-')">−</button>
+    <button class="calc-btn" onclick="calc('1')">1</button>
+    <button class="calc-btn" onclick="calc('2')">2</button>
+    <button class="calc-btn" onclick="calc('3')">3</button>
+    <button class="calc-btn op" onclick="calc('+')">+</button>
+    <button class="calc-btn" onclick="calc('0')">0</button>
+    <button class="calc-btn" onclick="calc('.')">.</button>
+    <button class="calc-btn equals" onclick="calc('=')">=</button>
+  </div>`;
+}
+
+let calcExpr = '';
+function calc(val) {
+  const displays = document.querySelectorAll('.calc-display');
+  const display = displays[displays.length - 1];
+  if (!display) return;
+  if (val === 'C') { calcExpr = ''; display.textContent = '0'; }
+  else if (val === '=') { 
+    try { calcExpr = String(Function('"use strict";return (' + calcExpr + ')')()); display.textContent = calcExpr; } 
+    catch { display.textContent = 'Error'; calcExpr = ''; }
+  }
+  else { calcExpr += val; display.textContent = calcExpr; }
+}
+
+function getBrowserContent() {
+  return `<div class="app-browser">
+    <div class="browser-bar">
+      <button onclick="this.parentElement.nextElementSibling.innerHTML='<div style=padding:20px;>Welcome to Web Browser.<br><br>Enter a URL to navigate (simulated).</div>'">←</button>
+      <input type="text" value="https://example.com" onkeydown="if(event.key==='Enter'){this.parentElement.nextElementSibling.innerHTML='<div style=padding:20px;><h3>'+this.value+'</h3><p>This is a simulated browser. In a real deployment, this would load the requested URL.</p></div>'}">
+      <button>Go</button>
+    </div>
+    <div class="browser-content">
+      <h3 style="margin-bottom:12px;color:var(--text);">Welcome to Web Browser</h3>
+      <p>This is a lightweight browser shell. Enter any URL above to simulate navigation.</p>
+      <div style="margin-top:20px;display:grid;gap:8px;">
+        <div style="padding:10px;background:rgba(255,255,255,0.04);border-radius:6px;cursor:pointer;" onclick="alert('Simulated: Opening search engine...')">🔍 Search Engine</div>
+        <div style="padding:10px;background:rgba(255,255,255,0.04);border-radius:6px;cursor:pointer;" onclick="alert('Simulated: Opening news...')">📰 News</div>
+        <div style="padding:10px;background:rgba(255,255,255,0.04);border-radius:6px;cursor:pointer;" onclick="alert('Simulated: Opening maps...')">🗺️ Maps</div>
+      </div>
+    </div>
+  </div>`;
+}
+
+function getCameraContent() {
+  return `<div class="app-camera">
+    <div class="camera-preview" id="cam-preview">
+      <div class="no-camera">
+        <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14.5 4h-5L7 7H4a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2h-3l-2.5-3z"/><circle cx="12" cy="13" r="3"/></svg>
+        <span>Click Start to enable camera</span>
+      </div>
+    </div>
+    <div class="camera-controls">
+      <button class="cam-btn" id="cam-start" onclick="startCamera()">Start Camera</button>
+      <button class="cam-btn secondary" id="cam-snap" onclick="takePhoto()" disabled>📸 Capture</button>
+    </div>
+    <div style="font-size:11px;color:var(--text-dim);margin-top:4px;">Photos are saved to Gallery & Files/Pictures</div>
+  </div>`;
+}
+
+async function startCamera() {
+  const preview = document.getElementById('cam-preview');
+  const startBtn = document.getElementById('cam-start');
+  const snapBtn = document.getElementById('cam-snap');
+  
+  try {
+    cameraStream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: 'environment' }, audio: false });
+    preview.innerHTML = '<video id="cam-video" autoplay playsinline></video>';
+    const video = document.getElementById('cam-video');
+    video.srcObject = cameraStream;
+    startBtn.textContent = 'Stop Camera';
+    startBtn.onclick = stopCamera;
+    snapBtn.disabled = false;
+  } catch (err) {
+    preview.innerHTML = `<div class="no-camera"><span>Camera access denied or unavailable.<br>Ensure you're on HTTPS/localhost.</span></div>`;
+  }
+}
+
+function stopCamera() {
+  if (cameraStream) {
+    cameraStream.getTracks().forEach(t => t.stop());
+    cameraStream = null;
+  }
+  const preview = document.getElementById('cam-preview');
+  if (preview) {
+    preview.innerHTML = `<div class="no-camera"><svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14.5 4h-5L7 7H4a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2h-3l-2.5-3z"/><circle cx="12" cy="13" r="3"/></svg><span>Camera stopped</span></div>`;
+  }
+  const startBtn = document.getElementById('cam-start');
+  const snapBtn = document.getElementById('cam-snap');
+  if (startBtn) { startBtn.textContent = 'Start Camera'; startBtn.onclick = startCamera; }
+  if (snapBtn) snapBtn.disabled = true;
+}
+
+function takePhoto() {
+  const video = document.getElementById('cam-video');
+  if (!video) return;
+  const canvas = document.createElement('canvas');
+  canvas.width = video.videoWidth || 640;
+  canvas.height = video.videoHeight || 480;
+  const ctx = canvas.getContext('2d');
+  ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+  const dataUrl = canvas.toDataURL('image/jpeg');
+  const photoName = `photo_${Date.now()}.jpg`;
+  photos.unshift({ id: Date.now(), src: dataUrl, date: new Date().toLocaleString(), name: photoName });
+  
+  fs.Pictures.items[photoName] = { type: 'file', content: dataUrl, mime: 'image/jpeg' };
+  
+  const galleryWin = Object.keys(windows).find(id => windows[id].title === 'Gallery');
+  if (galleryWin) windows[galleryWin].element.querySelector('.window-content').innerHTML = getGalleryContent();
+  
+  const preview = document.getElementById('cam-preview');
+  const flash = document.createElement('div');
+  flash.style.cssText = 'position:absolute;inset:0;background:white;opacity:0.8;pointer-events:none;transition:opacity 0.3s;';
+  preview.appendChild(flash);
+  setTimeout(() => flash.style.opacity = '0', 50);
+  setTimeout(() => flash.remove(), 350);
+}
+
+function getGalleryContent() {
+  if (photos.length === 0) {
+    return `<div class="app-gallery">
+      <div class="upload-area" onclick="document.getElementById('gallery-upload').click()" style="grid-column:1/-1;">
+        <div style="font-size:20px;margin-bottom:4px;">📤</div>
+        <div style="font-size:12px;">Import photos from device</div>
+        <input type="file" id="gallery-upload" accept="image/*" multiple onchange="handleGalleryImport(this)">
+      </div>
+      <div class="gallery-empty">No photos yet.<br>Open Camera or import from device.</div>
+    </div>`;
+  }
+  let html = `<div class="app-gallery">
+    <div class="upload-area" onclick="document.getElementById('gallery-upload').click()" style="grid-column:1/-1;">
+      <div style="font-size:20px;margin-bottom:4px;">📤</div>
+      <div style="font-size:12px;">Import more photos</div>
+      <input type="file" id="gallery-upload" accept="image/*" multiple onchange="handleGalleryImport(this)">
+    </div>`;
+  photos.forEach((photo, i) => {
+    html += `<div class="gallery-item" onclick="viewPhoto(${i})">
+      <img src="${photo.src}" alt="Photo ${i+1}">
+      <div class="gallery-actions">
+        <button onclick="event.stopPropagation();downloadPhoto(${i})" title="Save to device">💾</button>
+      </div>
+    </div>`;
+  });
+  html += `</div>`;
+  return html;
+}
+
+function handleGalleryImport(input) {
+  Array.from(input.files).forEach(file => {
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      const name = file.name || `import_${Date.now()}.jpg`;
+      photos.unshift({ id: Date.now() + Math.random(), src: e.target.result, date: new Date().toLocaleString(), name });
+      fs.Pictures.items[name] = { type: 'file', content: e.target.result, mime: file.type };
+      const galleryWin = Object.keys(windows).find(id => windows[id].title === 'Gallery');
+      if (galleryWin) windows[galleryWin].element.querySelector('.window-content').innerHTML = getGalleryContent();
+    };
+    reader.readAsDataURL(file);
+  });
+  input.value = '';
+}
+
+function downloadPhoto(index) {
+  const a = document.createElement('a');
+  a.href = photos[index].src;
+  a.download = photos[index].name || `photo_${index}.jpg`;
+  a.click();
+}
+
+function viewPhoto(index) {
+  const photo = photos[index];
+  createWindow(photo.name || `Photo ${index + 1}`, `<div style="padding:16px;display:flex;flex-direction:column;align-items:center;gap:12px;"><img src="${photo.src}" style="max-width:100%;max-height:60vh;border-radius:8px;box-shadow:0 8px 24px rgba(0,0,0,0.4);"><div style="font-size:12px;color:var(--text-dim);">${photo.date}</div><button onclick="downloadPhoto(${index})" style="padding:8px 16px;border-radius:6px;border:none;background:var(--accent);color:#1e1e2e;font-weight:600;cursor:pointer;font-size:12px;">💾 Save to Device</button></div>`, icons.gallery);
+}
+
+function getMusicContent() {
+  let tracksHtml = '';
+  if (musicTracks.length > 0) {
+    tracksHtml = `<div class="music-list">`;
+    musicTracks.forEach((track, i) => {
+      tracksHtml += `<div class="music-track ${i===currentTrack?'active':''}" onclick="playTrack(${i})">
+        <span class="music-track-name">${track.name}</span>
+        <span>${i===currentTrack && musicPlaying?'▶':'⏸'}</span>
+      </div>`;
+    });
+    tracksHtml += `</div>`;
+  }
+  
+  return `<div class="app-music">
+    <div class="music-cover" id="music-cover">${icons.music}</div>
+    <div class="music-info">
+      <div class="music-title" id="music-title">${currentTrack >= 0 ? musicTracks[currentTrack].name : 'No Track'}</div>
+      <div class="music-artist" id="music-artist">${musicTracks.length} tracks in library</div>
+    </div>
+    <div class="music-controls">
+      <button class="music-btn" onclick="prevTrack()">⏮</button>
+      <button class="music-btn play" id="music-play" onclick="toggleMusic()">${musicPlaying?'⏸':'▶'}</button>
+      <button class="music-btn" onclick="nextTrack()">⏭</button>
+    </div>
+    <div style="width:100%;max-width:240px;height:4px;background:rgba(255,255,255,0.1);border-radius:2px;margin-top:8px;overflow:hidden;">
+      <div id="music-progress" style="width:0%;height:100%;background:var(--accent);transition:width 0.3s;"></div>
+    </div>
+    <div class="upload-area" onclick="document.getElementById('music-upload').click()" style="margin-top:12px;max-width:280px;">
+      <div style="font-size:16px;margin-bottom:4px;">🎵</div>
+      <div style="font-size:11px;">Import audio from device</div>
+      <input type="file" id="music-upload" accept="audio/*" multiple onchange="handleMusicImport(this)">
+    </div>
+    ${tracksHtml}
+  </div>`;
+}
+
+function handleMusicImport(input) {
+  Array.from(input.files).forEach(file => {
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      musicTracks.push({ name: file.name, src: e.target.result });
+      fs.Music.items[file.name] = { type: 'file', content: e.target.result, mime: file.type };
+      const musicWin = Object.keys(windows).find(id => windows[id].title === 'Music');
+      if (musicWin) windows[musicWin].element.querySelector('.window-content').innerHTML = getMusicContent();
+    };
+    reader.readAsDataURL(file);
+  });
+  input.value = '';
+}
+
+function playTrack(index) {
+  if (audioPlayer) { audioPlayer.pause(); audioPlayer = null; }
+  currentTrack = index;
+  if (index < 0 || index >= musicTracks.length) return;
+  
+  audioPlayer = new Audio(musicTracks[index].src);
+  audioPlayer.play();
+  musicPlaying = true;
+  audioPlayer.onended = () => nextTrack();
+  
+  const musicWin = Object.keys(windows).find(id => windows[id].title === 'Music');
+  if (musicWin) {
+    const content = windows[musicWin].element.querySelector('.window-content');
+    if (content) content.innerHTML = getMusicContent();
+  }
+  
+  let progress = 0;
+  const bar = document.getElementById('music-progress');
+  if (bar) {
+    if (window.musicInterval) clearInterval(window.musicInterval);
+    window.musicInterval = setInterval(() => {
+      progress += 0.5;
+      if (progress > 100) progress = 0;
+      bar.style.width = progress + '%';
+    }, 100);
+  }
+}
+
+function toggleMusic() {
+  if (currentTrack < 0 && musicTracks.length > 0) { playTrack(0); return; }
+  if (!audioPlayer) return;
+  
+  if (musicPlaying) {
+    audioPlayer.pause();
+    musicPlaying = false;
+    if (window.musicInterval) clearInterval(window.musicInterval);
+  } else {
+    audioPlayer.play();
+    musicPlaying = true;
+  }
+  
+  const btn = document.getElementById('music-play');
+  if (btn) btn.textContent = musicPlaying ? '⏸' : '▶';
+}
+
+function prevTrack() {
+  if (musicTracks.length === 0) return;
+  let idx = currentTrack - 1;
+  if (idx < 0) idx = musicTracks.length - 1;
+  playTrack(idx);
+}
+
+function nextTrack() {
+  if (musicTracks.length === 0) return;
+  let idx = currentTrack + 1;
+  if (idx >= musicTracks.length) idx = 0;
+  playTrack(idx);
+}
+
+function getNotesContent() {
+  let html = `<div class="app-notes">`;
+  notes.forEach((note, i) => {
+    html += `<div class="note-card" onclick="editNote(${i})">
+      <div class="note-title">${note.title}</div>
+      <div class="note-body">${note.body.substring(0, 60)}${note.body.length > 60 ? '...' : ''}</div>
+    </div>`;
+  });
+  html += `<button onclick="newNote()" style="margin-top:8px;padding:10px 16px;border-radius:8px;border:none;background:var(--accent);color:#1e1e2e;font-weight:600;cursor:pointer;font-size:13px;">+ New Note</button>`;
+  html += `</div>`;
+  return html;
+}
+
+function editNote(index) {
+  const note = notes[index] || { title: 'New Note', body: '' };
+  createWindow(note.title, `<div style="padding:16px;"><input id="note-title-edit" value="${note.title}" style="width:100%;background:transparent;border:none;border-bottom:1px solid rgba(255,255,255,0.1);color:var(--text);font-size:16px;font-weight:600;margin-bottom:12px;padding:8px 0;outline:none;"><textarea id="note-body-edit" style="width:100%;height:200px;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.05);border-radius:8px;color:var(--text);font-family:inherit;font-size:13px;padding:12px;resize:none;outline:none;line-height:1.6;">${note.body}</textarea><button onclick="saveNote(${index})" style="margin-top:12px;padding:10px 20px;border-radius:8px;border:none;background:var(--accent);color:#1e1e2e;font-weight:600;cursor:pointer;">Save</button></div>`, icons.notes);
+}
+
+function saveNote(index) {
+  const title = document.getElementById('note-title-edit').value;
+  const body = document.getElementById('note-body-edit').value;
+  if (index >= 0 && index < notes.length) {
+    notes[index] = { title, body };
+  } else {
+    notes.push({ title, body });
+  }
+  const winId = Object.keys(windows).find(id => windows[id].title === 'Notes');
+  if (winId) {
+    windows[winId].element.querySelector('.window-content').innerHTML = getNotesContent();
+  }
+}
+
+function newNote() {
+  editNote(-1);
+  setTimeout(() => {
+    const btn = document.querySelector('#note-body-edit')?.nextElementSibling;
+    if (btn) btn.onclick = () => {
+      notes.push({ title: document.getElementById('note-title-edit').value, body: document.getElementById('note-body-edit').value });
+      const winId = Object.keys(windows).find(id => windows[id].title === 'Notes');
+      if (winId) windows[winId].element.querySelector('.window-content').innerHTML = getNotesContent();
+      const editorTitle = document.getElementById('note-title-edit').value;
+      const editorWin = Object.keys(windows).find(id => windows[id].title === editorTitle);
+      if (editorWin) closeWindow(editorWin);
+    };
+  }, 100);
+}
+
+function getSettingsContent() {
+  return `<div class="app-settings">
+    <div class="settings-section">
+      <div class="settings-title">Appearance</div>
+      <div class="settings-row"><span>Dark Mode</span><div class="toggle ${settings.darkMode?'on':''}" onclick="toggleSetting('darkMode',this)"></div></div>
+      <div class="settings-row"><span>Animations</span><div class="toggle ${settings.animations?'on':''}" onclick="toggleSetting('animations',this)"></div></div>
+      <div class="settings-row"><span>Screen Brightness</span><input type="range" min="20" max="100" value="${settings.brightness}" oninput="setBrightness(this.value)" style="width:100px;"></div>
+    </div>
+    <div class="settings-section">
+      <div class="settings-title">Power & Sleep</div>
+      <div class="settings-row"><span>Screen Sleep</span><div class="toggle ${settings.sleepEnabled?'on':''}" onclick="toggleSetting('sleepEnabled',this)"></div></div>
+      <div class="settings-row"><span>Sleep After</span>
+        <select class="settings-select" onchange="setSleepTimeout(this.value)">
+          <option value="30000" ${settings.sleepTimeout==30000?'selected':''}>30 seconds</option>
+          <option value="60000" ${settings.sleepTimeout==60000?'selected':''}>1 minute</option>
+          <option value="120000" ${settings.sleepTimeout==120000?'selected':''}>2 minutes</option>
+          <option value="300000" ${settings.sleepTimeout==300000?'selected':''}>5 minutes</option>
+        </select>
+      </div>
+    </div>
+    <div class="settings-section">
+      <div class="settings-title">System</div>
+      <div class="settings-row"><span>Notifications</span><div class="toggle ${settings.notifications?'on':''}" onclick="toggleSetting('notifications',this)"></div></div>
+      <div class="settings-row"><span>Wallpaper</span><button onclick="changeWallpaper()" style="padding:6px 12px;border-radius:6px;border:none;background:rgba(255,255,255,0.1);color:var(--text);font-size:12px;cursor:pointer;">Change</button></div>
+      <div class="settings-row"><span>Network IP</span><span style="font-family:monospace;font-size:12px;color:var(--text-dim);" id="settings-ip">${currentIP}</span></div>
+    </div>
+    <div class="settings-section">
+      <div class="settings-title">About</div>
+      <div style="padding:12px;background:rgba(255,255,255,0.04);border-radius:8px;font-size:12px;color:var(--text-dim);line-height:1.8;">
+        Web Linux Replica v3.0<br>
+        Built with vanilla HTML/CSS/JS<br>
+        Camera, Files, Music & Gallery synced<br>
+        Screen Sleep & Network simulation enabled<br>
+        IP changes every 1 minute<br>
+        © 2026 WebLinux Project
+      </div>
+    </div>
+  </div>`;
+}
+
+function toggleSetting(key, el) {
+  settings[key] = !settings[key];
+  el.classList.toggle('on', settings[key]);
+  saveSettings();
+  if (key === 'sleepEnabled') resetInactivityTimer();
+}
+
+function setBrightness(val) {
+  settings.brightness = parseInt(val);
+  document.getElementById('brightness-overlay').style.opacity = (100 - settings.brightness) / 100 * 0.8;
+  saveSettings();
+}
+
+function setSleepTimeout(val) {
+  settings.sleepTimeout = parseInt(val);
+  saveSettings();
+  resetInactivityTimer();
+}
+
+function changeWallpaper() {
+  const wallpapers = ['var(--wallpaper)', 'var(--wallpaper-alt)', 'var(--wallpaper-alt2)'];
+  const desktop = document.getElementById('desktop');
+  let idx = parseInt(desktop.dataset.wp || '0');
+  idx = (idx + 1) % wallpapers.length;
+  desktop.dataset.wp = idx;
+  desktop.style.background = wallpapers[idx];
+}
+
+// ============ SNAKE GAME ============
+let snakeGame = null;
+function getSnakeContent() {
+  return `<div class="app-snake">
+    <div class="snake-ui">
+      <div>Score: <span class="snake-score" id="snake-score">0</span></div>
+      <div>Best: <span class="snake-high" id="snake-high">${snakeHighScore}</span></div>
+    </div>
+    <canvas id="snake-canvas" class="snake-canvas" width="300" height="300"></canvas>
+    <div class="snake-controls">
+      <div></div><button class="snake-btn" ontouchstart="snakeInput('up')" onclick="snakeInput('up')">↑</button><div></div>
+      <button class="snake-btn" ontouchstart="snakeInput('left')" onclick="snakeInput('left')">←</button>
+      <button class="snake-btn" ontouchstart="snakeInput('down')" onclick="snakeInput('down')">↓</button>
+      <button class="snake-btn" ontouchstart="snakeInput('right')" onclick="snakeInput('right')">→</button>
+    </div>
+    <div class="snake-hint">Use arrow keys or WASD. Space to pause.</div>
+    <button onclick="initSnakeGame()" style="margin-top:8px;padding:8px 16px;border-radius:6px;border:none;background:var(--accent);color:#1e1e2e;font-weight:600;cursor:pointer;font-size:12px;">Restart</button>
+  </div>`;
+}
+
+function initSnakeGame() {
+  const canvas = document.getElementById('snake-canvas');
+  if (!canvas) return;
+  const ctx = canvas.getContext('2d');
+  
+  const GRID = 15;
+  const TILE = canvas.width / GRID;
+  
+  snakeGame = {
+    snake: [{x: 7, y: 7}],
+    dir: {x: 0, y: -1},
+    nextDir: {x: 0, y: -1},
+    food: {x: 10, y: 5},
+    score: 0,
+    over: false,
+    paused: false,
+    lastTime: 0,
+    moveInterval: 150,
+    progress: 0,
+    animId: null
+  };
+  
+  function placeFood() {
+    do {
+      snakeGame.food = {
+        x: Math.floor(Math.random() * GRID),
+        y: Math.floor(Math.random() * GRID)
+      };
+    } while (snakeGame.snake.some(s => s.x === snakeGame.food.x && s.y === snakeGame.food.y));
+  }
+  
+  function update(dt) {
+    if (snakeGame.over || snakeGame.paused) return;
+    snakeGame.progress += dt;
+    if (snakeGame.progress < snakeGame.moveInterval) return;
+    snakeGame.progress = 0;
+    
+    snakeGame.dir = {...snakeGame.nextDir};
+    const head = {
+      x: snakeGame.snake[0].x + snakeGame.dir.x,
+      y: snakeGame.snake[0].y + snakeGame.dir.y
+    };
+    
+    if (head.x < 0 || head.x >= GRID || head.y < 0 || head.y >= GRID || snakeGame.snake.some(s => s.x === head.x && s.y === head.y)) {
+      snakeGame.over = true;
+      if (snakeGame.score > snakeHighScore) {
+        snakeHighScore = snakeGame.score;
+        localStorage.setItem('snakeHighScore', snakeHighScore);
+        document.getElementById('snake-high').textContent = snakeHighScore;
+      }
+      return;
+    }
+    
+    snakeGame.snake.unshift(head);
+    if (head.x === snakeGame.food.x && head.y === snakeGame.food.y) {
+      snakeGame.score += 10;
+      document.getElementById('snake-score').textContent = snakeGame.score;
+      placeFood();
+      if (snakeGame.moveInterval > 60) snakeGame.moveInterval -= 3;
+    } else {
+      snakeGame.snake.pop();
+    }
+  }
+  
+  function draw() {
+    ctx.fillStyle = '#0a0a0a';
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+    
+    ctx.strokeStyle = 'rgba(255,255,255,0.03)';
+    ctx.lineWidth = 1;
+    for (let i = 0; i <= GRID; i++) {
+      ctx.beginPath(); ctx.moveTo(i * TILE, 0); ctx.lineTo(i * TILE, canvas.height); ctx.stroke();
+      ctx.beginPath(); ctx.moveTo(0, i * TILE); ctx.lineTo(canvas.width, i * TILE); ctx.stroke();
+    }
+    
+    ctx.fillStyle = '#f38ba8';
+    ctx.shadowColor = '#f38ba8';
+    ctx.shadowBlur = 10;
+    ctx.beginPath();
+    ctx.arc((snakeGame.food.x + 0.5) * TILE, (snakeGame.food.y + 0.5) * TILE, TILE * 0.35, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.shadowBlur = 0;
+    
+    snakeGame.snake.forEach((seg, i) => {
+      const alpha = 1 - (i / snakeGame.snake.length) * 0.5;
+      ctx.fillStyle = i === 0 ? '#a6e3a1' : `rgba(166,227,161,${alpha})`;
+      ctx.beginPath();
+      ctx.roundRect(seg.x * TILE + 1, seg.y * TILE + 1, TILE - 2, TILE - 2, 4);
+      ctx.fill();
+    });
+    
+    const head = snakeGame.snake[0];
+    ctx.fillStyle = '#0a0a0a';
+    const ex = (head.x + 0.5) * TILE;
+    const ey = (head.y + 0.5) * TILE;
+    if (snakeGame.dir.x === 1) { ctx.beginPath(); ctx.arc(ex + 3, ey - 3, 2, 0, Math.PI*2); ctx.fill(); ctx.beginPath(); ctx.arc(ex + 3, ey + 3, 2, 0, Math.PI*2); ctx.fill(); }
+    else if (snakeGame.dir.x === -1) { ctx.beginPath(); ctx.arc(ex - 3, ey - 3, 2, 0, Math.PI*2); ctx.fill(); ctx.beginPath(); ctx.arc(ex - 3, ey + 3, 2, 0, Math.PI*2); ctx.fill(); }
+    else if (snakeGame.dir.y === -1) { ctx.beginPath(); ctx.arc(ex - 3, ey - 3, 2, 0, Math.PI*2); ctx.fill(); ctx.beginPath(); ctx.arc(ex + 3, ey - 3, 2, 0, Math.PI*2); ctx.fill(); }
+    else { ctx.beginPath(); ctx.arc(ex - 3, ey + 3, 2, 0, Math.PI*2); ctx.fill(); ctx.beginPath(); ctx.arc(ex + 3, ey + 3, 2, 0, Math.PI*2); ctx.fill(); }
+    
+    if (snakeGame.over) {
+      ctx.fillStyle = 'rgba(0,0,0,0.7)';
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
+      ctx.fillStyle = '#f38ba8';
+      ctx.font = 'bold 20px Segoe UI';
+      ctx.textAlign = 'center';
+      ctx.fillText('GAME OVER', canvas.width/2, canvas.height/2 - 10);
+      ctx.fillStyle = 'var(--text)';
+      ctx.font = '14px Segoe UI';
+      ctx.fillText(`Score: ${snakeGame.score}`, canvas.width/2, canvas.height/2 + 20);
+    }
+    
+    if (snakeGame.paused) {
+      ctx.fillStyle = 'rgba(0,0,0,0.6)';
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
+      ctx.fillStyle = 'var(--text)';
+      ctx.font = 'bold 18px Segoe UI';
+      ctx.textAlign = 'center';
+      ctx.fillText('PAUSED', canvas.width/2, canvas.height/2);
+    }
+  }
+  
+  let last = performance.now();
+  function loop(now) {
+    if (!snakeGame || !document.getElementById('snake-canvas')) return;
+    const dt = now - last;
+    last = now;
+    update(dt);
+    draw();
+    snakeGame.animId = requestAnimationFrame(loop);
+  }
+  snakeGame.animId = requestAnimationFrame(loop);
+}
+
+function snakeInput(dir) {
+  if (!snakeGame || snakeGame.over) return;
+  const dirs = { up: {x:0,y:-1}, down: {x:0,y:1}, left: {x:-1,y:0}, right: {x:1,y:0} };
+  const d = dirs[dir];
+  if (snakeGame.dir.x !== -d.x || snakeGame.dir.y !== -d.y) {
+    snakeGame.nextDir = d;
+  }
+}
+
+function stopSnake() {
+  if (snakeGame && snakeGame.animId) {
+    cancelAnimationFrame(snakeGame.animId);
+    snakeGame = null;
+  }
+}
+
+document.addEventListener('keydown', (e) => {
+  if (!snakeGame) return;
+  const keys = {
+    ArrowUp: 'up', w: 'up', W: 'up',
+    ArrowDown: 'down', s: 'down', S: 'down',
+    ArrowLeft: 'left', a: 'left', A: 'left',
+    ArrowRight: 'right', d: 'right', D: 'right'
+  };
+  if (keys[e.key]) { e.preventDefault(); snakeInput(keys[e.key]); }
+  if (e.key === ' ' || e.key === 'Spacebar') { e.preventDefault(); if (snakeGame) snakeGame.paused = !snakeGame.paused; }
+});
+
+// ============ SCREEN SLEEP ============
+function resetInactivityTimer() {
+  clearTimeout(inactivityTimer);
+  if (!settings.sleepEnabled) return;
+  inactivityTimer = setTimeout(showLockScreen, settings.sleepTimeout);
+}
+
+function showLockScreen() {
+  const lock = document.getElementById('lock-screen');
+  lock.classList.add('show');
+  updateLockClock();
+}
+
+function hideLockScreen() {
+  document.getElementById('lock-screen').classList.remove('show');
+  resetInactivityTimer();
+}
+
+function updateLockClock() {
+  const now = new Date();
+  document.getElementById('lock-clock').textContent = now.toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'});
+  document.getElementById('lock-date').textContent = now.toLocaleDateString([], {weekday:'long', month:'long', day:'numeric'});
+}
+
+// ============ IP FLUCTUATION (1 MINUTE) ============
+function generateIP() {
+  // Random private IP ranges
+  const ranges = [
+    [192, 168, 1],   // 192.168.1.x
+    [192, 168, 0],   // 192.168.0.x
+    [10, 0, 0],      // 10.0.0.x
+    [172, 16, 0],    // 172.16.0.x
+    [192, 168, 2],   // 192.168.2.x
+  ];
+  const range = ranges[Math.floor(Math.random() * ranges.length)];
+  const lastOctet = Math.floor(Math.random() * 254) + 1;
+  return `${range[0]}.${range[1]}.${range[2]}.${lastOctet}`;
+}
+
+function fluctuateIP() {
+  const oldIP = currentIP;
+  currentIP = generateIP();
+  
+  // Update all displays
+  document.getElementById('ip-display').textContent = currentIP;
+  
+  const settingsIp = document.getElementById('settings-ip');
+  if (settingsIp) settingsIp.textContent = currentIP;
+  
+  const termIps = document.querySelectorAll('.live-ip, #term-ip');
+  termIps.forEach(el => el.textContent = currentIP);
+  
+  // Show toast notification
+  const toast = document.getElementById('ip-toast');
+  const toastVal = document.getElementById('ip-toast-value');
+  if (toast && toastVal) {
+    toastVal.textContent = `${oldIP} → ${currentIP}`;
+    toast.classList.add('show');
+    setTimeout(() => toast.classList.remove('show'), 3000);
+  }
+  
+  // Flash tray text briefly
+  const trayText = document.getElementById('ip-display');
+  if (trayText) {
+    trayText.classList.add('changed');
+    setTimeout(() => trayText.classList.remove('changed'), 1000);
+  }
+}
+
+// ============ MAIN APPS ARRAY ============
+const apps = [
+  { name: "Terminal", icon: icons.terminal, color: "#a6e3a1", getContent: getTerminalContent, width: '500px', height: '350px' },
+  { name: "Files", icon: icons.files, color: "#f9e2af", getContent: () => getFilesContent(), width: '450px', height: '380px' },
+  { name: "Text Editor", icon: icons.editor, color: "#89b4fa", getContent: () => `<div style="padding:16px;height:100%;"><textarea style="width:100%;height:100%;background:transparent;border:none;color:var(--text);font-family:monospace;font-size:13px;resize:none;outline:none;line-height:1.6;" spellcheck="false">Welcome to Web Linux Text Editor!
+
+This is a scratchpad. Create files in the Files app to edit them with persistence.</textarea></div>`, width: '480px', height: '360px' },
+  { name: "Calculator", icon: icons.calc, color: "#f38ba8", getContent: getCalcContent, width: '300px', height: '380px' },
+  { name: "Browser", icon: icons.browser, color: "#89b4fa", getContent: getBrowserContent, width: '560px', height: '400px' },
+  { name: "Camera", icon: icons.camera, color: "#f9e2af", getContent: getCameraContent, width: '420px', height: 'auto' },
+  { name: "Gallery", icon: icons.gallery, color: "#cba6f7", getContent: getGalleryContent, width: '480px', height: '380px' },
+  { name: "Music", icon: icons.music, color: "#a6e3a1", getContent: getMusicContent, width: '320px', height: '460px' },
+  { name: "Notes", icon: icons.notes, color: "#f9e2af", getContent: getNotesContent, width: '320px', height: '360px' },
+  { name: "Snake", icon: icons.snake, color: "#a6e3a1", getContent: getSnakeContent, width: '340px', height: '520px' },
+  { name: "Settings", icon: icons.settings, color: "#89b4fa", getContent: getSettingsContent, width: '400px', height: '480px' }
+];
+
+function initDesktop() {
+  const desktop = document.getElementById('desktop');
+  desktop.innerHTML = '';
+  
+  apps.forEach(app => {
+    const el = document.createElement('div');
+    el.className = 'desktop-icon';
+    el.innerHTML = `
+      <div class="desktop-icon-img" style="color:${app.color}">${app.icon}</div>
+      <div class="desktop-icon-text">${app.name}</div>
+    `;
+    el.onclick = () => {
+      const id = createWindow(app.name, app.getContent(), app.icon, app.width, app.height);
+      if (app.name === 'Snake') setTimeout(initSnakeGame, 100);
+    };
+    desktop.appendChild(el);
+  });
+
+  const startItems = document.getElementById('start-menu-items');
+  startItems.innerHTML = '';
+  apps.forEach(app => {
+    const item = document.createElement('div');
+    item.className = 'start-item';
+    item.innerHTML = `${app.icon}<span>${app.name}</span>`;
+    item.onclick = () => {
+      const id = createWindow(app.name, app.getContent(), app.icon, app.width, app.height);
+      if (app.name === 'Snake') setTimeout(initSnakeGame, 100);
+      document.getElementById('start-menu').classList.remove('show');
+    };
+    startItems.appendChild(item);
+  });
+  
+  document.getElementById('brightness-overlay').style.opacity = (100 - settings.brightness) / 100 * 0.8;
+}
+
 function boot() {
   const output = document.getElementById('boot-output');
-  const messages = [
-    "[ OK ] Initializing kernel...",
-    "[ OK ] Mounting filesystem...",
-    "[ OK ] Starting desktop environment...",
-    "[ OK ] Web Linux Replica v1.1 ready."
+  const lines = [
+    "[ OK ] Booting Web Linux Replica v3.0...",
+    "[ OK ] Loading kernel modules...",
+    "[ OK ] Mounting root filesystem (virtual)...",
+    "[ OK ] Initializing camera subsystem...",
+    "[ OK ] Starting display server...",
+    "[ OK ] Loading desktop environment...",
+    "[ OK ] Screen sleep daemon active...",
+    "[ OK ] Network monitor initialized (1m interval)...",
+    "[ OK ] Web Linux ready."
   ];
   let i = 0;
   const int = setInterval(() => {
-    output.innerHTML += messages[i] + "<br>";
+    output.innerHTML += lines[i] + "<br>";
     i++;
-    if (i >= messages.length) {
+    if (i >= lines.length) {
       clearInterval(int);
       setTimeout(() => {
         document.getElementById('boot-screen').style.opacity = "0";
         setTimeout(() => {
           document.getElementById('boot-screen').style.display = "none";
           initDesktop();
-          initStartMenu();
+          resetInactivityTimer();
+          ipInterval = setInterval(fluctuateIP, 60000); // 1 minute
         }, 600);
-      }, 800);
+      }, 600);
     }
-  }, 280);
+  }, 350);
 }
 
-// Event Listeners
 document.addEventListener('DOMContentLoaded', () => {
-  document.getElementById('start-btn').addEventListener('click', () => {
-    document.getElementById('start-menu').classList.toggle('open');
+  document.getElementById('start-btn').onclick = (e) => {
+    e.stopPropagation();
+    document.getElementById('start-menu').classList.toggle('show');
+  };
+  
+  document.addEventListener('click', (e) => {
+    if (!e.target.closest('#start-menu') && !e.target.closest('#start-btn')) {
+      document.getElementById('start-menu').classList.remove('show');
+    }
   });
 
-  setInterval(() => {
-    document.getElementById('clock').textContent = new Date().toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'});
-  }, 1000);
-
+  const updateClock = () => {
+    const now = new Date();
+    document.getElementById('clock-time').textContent = now.toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'});
+    document.getElementById('clock-date').textContent = now.toLocaleDateString([], {month:'short', day:'numeric'});
+  };
+  updateClock();
+  setInterval(updateClock, 1000);
+  
+  document.getElementById('lock-screen').addEventListener('click', hideLockScreen);
+  document.addEventListener('keydown', (e) => {
+    if (document.getElementById('lock-screen').classList.contains('show')) {
+      hideLockScreen();
+    }
+  });
+  
+  ['mousemove','mousedown','keydown','touchstart','scroll'].forEach(evt => {
+    document.addEventListener(evt, resetInactivityTimer);
+  });
+  
   boot();
+});
+
+window.addEventListener('resize', () => {
+  Object.values(windows).forEach(({element}) => {
+    const rect = element.getBoundingClientRect();
+    const screenArea = document.getElementById('screen-area');
+    if (rect.right > screenArea.clientWidth) element.style.left = Math.max(0, screenArea.clientWidth - rect.width) + 'px';
+    if (rect.bottom > screenArea.clientHeight - 48) element.style.top = Math.max(0, screenArea.clientHeight - rect.height - 48) + 'px';
+  });
 });
 </script>
 </body>
